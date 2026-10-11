@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <UserSecretsId>saman-soft-black-friday-development</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

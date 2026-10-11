@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Sale.Infrastructure;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Logging.AddJsonConsole(options =>
     options.UseUtcTimestamp = true;
     options.TimestampFormat = "yyyy-MM-dd'T'HH:mm:ss.fff'Z'";
 });
+
+builder.Services.AddInfrastructure(builder.Configuration);
 
 using var host = builder.Build();
 
