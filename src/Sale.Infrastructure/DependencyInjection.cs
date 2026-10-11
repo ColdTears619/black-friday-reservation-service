@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sale.Infrastructure.Persistence;
+using Sale.Application.Sales;
 
 namespace Sale.Infrastructure;
 
@@ -26,6 +27,8 @@ public static class DependencyInjection
         });
 
         services.AddSingleton(TimeProvider.System);
+        services.AddScoped<ISaleEventStore, SaleEventStore>();
+        services.AddScoped<SaleEventService>();
         services.AddScoped<DatabaseInitializer>();
 
         return services;

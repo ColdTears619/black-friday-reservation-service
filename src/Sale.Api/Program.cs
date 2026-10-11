@@ -2,6 +2,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Sale.Infrastructure;
 using Sale.Infrastructure.Persistence;
+using Sale.Api.Endpoints;
 using Sale.Api.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,6 +56,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseMiddleware<RequestLoggingMiddleware>();
+app.MapSaleEventEndpoints();
 
 app.MapGet("/health/live", async (
     HealthCheckService healthChecks,
