@@ -52,4 +52,10 @@ public static class DependencyInjection
 
         return services;
     }
+
+    public static IServiceCollection AddReservationExpirationWorker(this IServiceCollection services)
+    {
+        services.AddHostedService<ReservationExpirationWorker>();
+        return services;
+    }
 }

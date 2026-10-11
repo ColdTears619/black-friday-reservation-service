@@ -13,6 +13,7 @@ builder.Logging.AddJsonConsole(options =>
 });
 
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddReservationExpirationWorker();
 
 using var host = builder.Build();
 
