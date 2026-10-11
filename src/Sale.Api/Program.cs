@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Sale.Infrastructure;
+using Sale.Infrastructure.Persistence;
 using Sale.Api.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +36,14 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+// Database writes at startup are opt-in until the initialization is approved.
+if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup"))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    await scope.ServiceProvider.GetRequiredService<DatabaseInitializer>()
+        .InitializeAsync(app.Lifetime.ApplicationStopping);
+}
 
 app.UseExceptionHandler();
 

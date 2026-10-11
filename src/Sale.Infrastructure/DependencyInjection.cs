@@ -25,6 +25,9 @@ public static class DependencyInjection
             options.UseSqlServer(connectionString);
         });
 
+        services.AddSingleton(TimeProvider.System);
+        services.AddScoped<DatabaseInitializer>();
+
         return services;
     }
 }
