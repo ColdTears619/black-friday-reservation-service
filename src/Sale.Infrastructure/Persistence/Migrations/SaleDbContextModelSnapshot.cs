@@ -13,7 +13,6 @@ namespace Sale.Infrastructure.Persistence.Migrations
     [DbContext(typeof(SaleDbContext))]
     partial class SaleDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
@@ -22,6 +21,34 @@ namespace Sale.Infrastructure.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Sale.Domain.Entities.ProcessingJob", b =>
+                {
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ReservationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)");
+
+                    b.HasKey("TenantId", "Id");
+
+                    b.HasIndex("TenantId", "ReservationId")
+                        .IsUnique();
+
+                    b.ToTable("ProcessingJobs", (string)null);
+                });
 
             modelBuilder.Entity("Sale.Domain.Entities.Product", b =>
                 {
@@ -47,6 +74,76 @@ namespace Sale.Infrastructure.Persistence.Migrations
                     b.ToTable("Products", null, t =>
                         {
                             t.HasCheckConstraint("CK_Products_RegularPrice", "[RegularPrice] > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Sale.Domain.Entities.Reservation", b =>
+                {
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ConfirmedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)")
+                        .UseCollation("Latin1_General_100_BIN2");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("SaleEventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("TenantId", "Id");
+
+                    b.HasIndex("Status", "ExpiresAt");
+
+                    b.HasIndex("TenantId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "SaleEventId", "Sku");
+
+                    b.ToTable("Reservations", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Reservations_Expiry", "[ExpiresAt] > [CreatedAt]");
+
+                            t.HasCheckConstraint("CK_Reservations_Quantity", "[Quantity] > 0");
+
+                            t.HasCheckConstraint("CK_Reservations_Status", "([Status] IN ('Pending', 'Expired') AND [ConfirmedAt] IS NULL) OR ([Status] = 'Confirmed' AND [ConfirmedAt] >= [CreatedAt] AND [ConfirmedAt] < [ExpiresAt] AND [ConfirmedAt] IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_Reservations_UnitPrice", "[UnitPrice] > 0");
                         });
                 });
 
@@ -138,11 +235,29 @@ namespace Sale.Infrastructure.Persistence.Migrations
                     b.ToTable("Tenants", (string)null);
                 });
 
+            modelBuilder.Entity("Sale.Domain.Entities.ProcessingJob", b =>
+                {
+                    b.HasOne("Sale.Domain.Entities.Reservation", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ReservationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Sale.Domain.Entities.Product", b =>
                 {
                     b.HasOne("Sale.Domain.Entities.Tenant", null)
                         .WithMany()
                         .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Sale.Domain.Entities.Reservation", b =>
+                {
+                    b.HasOne("Sale.Domain.Entities.SaleEventItem", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SaleEventId", "Sku")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

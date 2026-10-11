@@ -14,6 +14,10 @@ public sealed class SaleDbContext(
 
     public DbSet<SaleEventItem> SaleEventItems => Set<SaleEventItem>();
 
+    public DbSet<Reservation> Reservations => Set<Reservation>();
+
+    public DbSet<ProcessingJob> ProcessingJobs => Set<ProcessingJob>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -57,6 +57,7 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.MapSaleEventEndpoints();
+app.MapReservationEndpoints();
 
 app.MapGet("/health/live", async (
     HealthCheckService healthChecks,
