@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.22" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="../Sale.Application/Sale.Application.csproj" />
     <ProjectReference Include="../Sale.Domain/Sale.Domain.csproj" />
   </ItemGroup>
